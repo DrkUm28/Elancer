@@ -1,0 +1,38 @@
+version: "3"
+services:
+  front:
+    build:
+      context: .
+      args:
+        - API_URL=localhost
+        - API_PORT=3001
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+      - api
+
+  db:
+    image: postgres
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+
+  api:
+    image: vitorshgf/backend-rails-ulacit
+    command: bash -c "rm -f tmp/pids/server.pid && rails server -p 3001 -b '0.0.0.0'"
+    environment:
+      - API_HOST=localhost
+    volumes:
+      - api-storage:/ulacit-api/storage
+      - tmp-storage:/ulacit-api/tmp/storage
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+volumes:
+  pg-data:
+  api-storage:
+  tmp-storage:
